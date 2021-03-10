@@ -12,11 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import com.google.ads.googleads.lib.logging.LoggingInterceptor;
+import com.google.ads.googleads.lib.logging.RequestLogger;
 import com.google.ads.googleads.v6.services.GoogleAdsServiceClient;
 import com.google.ads.googleads.v6.services.GoogleAdsServiceSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.auth.oauth2.UserCredentials;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import io.grpc.ClientInterceptor;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class Issue {
 
@@ -30,7 +38,13 @@ public class Issue {
 
     GoogleAdsServiceSettings settings =
         GoogleAdsServiceSettings.newBuilder()
-            .setTransportChannelProvider(InstantiatingGrpcChannelProvider.newBuilder().build())
+            .setTransportChannelProvider(
+                InstantiatingGrpcChannelProvider.newBuilder()
+                    .setInterceptorProvider(
+                        () ->
+                            ImmutableList.of(
+                                new LoggingInterceptor(new RequestLogger(), ImmutableMap.of(), "")))
+                    .build())
             .setCredentialsProvider(() -> credentials)
             .build();
 
